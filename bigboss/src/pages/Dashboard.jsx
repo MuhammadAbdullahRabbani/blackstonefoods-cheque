@@ -289,7 +289,7 @@ Important  Instructions
   <p className="text-lg leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
     This receipt is a record of an internal business transaction entered into by mutual agreement between BSF and the recipient. 
     It shall not be considered a 'check' or an enforceable instrument by any bank or court, and is payable/cleared only by BSF in cash
-  </p>
+  </p>  
 </div>
 
        
