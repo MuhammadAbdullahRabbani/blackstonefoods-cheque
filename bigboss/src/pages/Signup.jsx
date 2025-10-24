@@ -58,17 +58,10 @@ function Signup() {
   return (
     <div className="signup-wrap">
       <section className="hero">
-        <span className="badge">Join BSF</span>
         <h1 className="title">Create your account</h1>
         <p className="footer-note">
           By creating an account, you agree to our Terms and Privacy.
         </p>
-        <Lottie
-          animationData={signupAnimation}
-          loop={true}
-          autoplay={true}
-          className="signup-lottie"
-        />
       </section>
 
       <section>
@@ -115,6 +108,12 @@ function Signup() {
           </div>
         </form>
       </section>
+      <Lottie
+          animationData={signupAnimation}
+          loop={true}
+          autoplay={true}
+          className="signup-lottie"
+        />
     </div>
   );
 }

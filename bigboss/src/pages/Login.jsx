@@ -45,15 +45,8 @@ function Login() {
   return (
     <div className="signup-wrap">
       <section className="hero">
-        <span className="badge">Welcome Back</span>
         <h1 className="title">Login to your account</h1>
         <p className="subtitle">Continue your journey with Black Stone Foods.</p>
-        <Lottie
-          animationData={loginAnimation}
-          loop={true}
-          autoplay={true}
-          className="login-lottie"
-        />
       </section>
 
       <section>
@@ -93,6 +86,12 @@ function Login() {
           </div>
         </form>
       </section>
+      <Lottie
+          animationData={loginAnimation}
+          loop={true}
+          autoplay={true}
+          className="login-lottie"
+        />
     </div>
   );
 }

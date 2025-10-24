@@ -1,12 +1,7 @@
-/* ------------------------------
-   BSF CHEQUE THEME STYLES
-   Golden Cheque Background + Glass Signup Card
-   ------------------------------ */
 
-/* Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@400;500&display=swap');
 
-/* Root Colors */
+
 :root {
   --primary-gold: #d4b06a;
   --primary-gold-dark: #b89c5e;
@@ -446,38 +441,46 @@ body {
 }
 
 .bsf-logo {
-  width: 90px;                        /* Bigger size */
-  height: 90px;
-  border-radius: 50%;                 /* Keep circular */
+  width: 150px;                  /* adjust to fit your layout */
+  height: 150px;                  /* keeps proportions */
+  display: block;
   object-fit: contain;
-  background: transparent;            /* Ensure transparent background */
-  border: 2.5px solid var(--primary-gold); /* Golden outline */
-  box-shadow:
-    0 0 8px rgba(212, 176, 106, 0.4),      /* Soft golden glow */
-    inset 0 0 4px rgba(212, 176, 106, 0.3);/* Inner ring glow */
-  transition: all 0.3s ease;
+  background: transparent;       /* ✅ removes any box background */
+  border: none;   
+   margin: 0;    
+   padding: 0;                    /* ✅ no border */
+  box-shadow: none;    
+  margin-bottom: 0.2rem;          /* ✅ no outer box shadow */
+
+  /* ✅ only soft golden glow under the logo */
+  filter: drop-shadow(0 4px 10px rgba(186, 150, 84, 0.6));
 }
 
-/* Optional hover effect for subtle glow */
-.bsf-logo:hover {
-  transform: scale(1.05);
-  box-shadow:
-    0 0 14px rgba(212, 176, 106, 0.55),
-    inset 0 0 6px rgba(212, 176, 106, 0.4);
+/* ✅ Responsive scaling for smaller screens */
+@media (max-width: 480px) {
+  .bsf-logo {
+    width: 90px;
+  }
 }
+
+
+
+
 
 .header-title {
   font-family: "Playfair Display", serif;
   font-size: 1.7rem;
-  font-weight: 700;
-  margin: 0;
+  font-weight: 600;
+  margin: 0;               /* ✅ remove default h1 margin */
   color: var(--text-main);
+  line-height: 1.1;        /* ✅ keeps text compact */
 }
 
 .header-subtitle {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin-top: 0.2rem;
+  margin: 0.1rem 0 0 0;    /* ✅ very small gap below title */
+  line-height: 1.2;
 }
 
 /* Header Right (Greeting + Logout) */
@@ -565,16 +568,20 @@ body {
   }
 
   .header-left {
-    flex-direction: column;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+ gap: 0.25rem;
+  margin-top: 0.3rem;     /* tighten top spacing */
+  margin-bottom: 0;       /* remove bottom space */
+  padding: 0;  
+}
 
-  .bsf-logo {
-    width: 45px;
-    height: 45px;
-  }
 
   .header-title {
-    font-size: 1.4rem;
+    font-size: 1.6rem;        
+    line-height: 1.3;
   }
 
   .glass-card {
@@ -591,6 +598,20 @@ body {
     height: 2.6rem;
   }
 }
+
+
+@media (max-width: 400px) {
+  .bsf-logo {
+    width: 95px;
+    height: 95px;
+  }
+
+  .header-title {
+    font-size: 1.4rem;
+  }
+}
+
+
 .animation-container {
   position: relative;
   display: flex;
@@ -598,7 +619,7 @@ body {
   align-items: center;
 }
 
-/* Floating smaller animation */
+
 .verify-lottie {
   position: absolute;
   width: 100px;
@@ -613,7 +634,7 @@ body {
   filter: drop-shadow(0 4px 10px rgba(212, 176, 106, 0.25));
 }
 
-/* Fade + float animation */
+
 @keyframes fadeInOut {
   0% {
     transform: translate(-50%, -50%) scale(0.8);

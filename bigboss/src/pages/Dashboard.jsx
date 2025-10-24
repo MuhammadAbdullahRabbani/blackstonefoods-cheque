@@ -2,13 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import Lottie from "lottie-react";
 import verifySuccess from "../assets/verify-success.json";
 import verifyFail from "../assets/verify-fail.json";
-import bsfLogo from "../assets/bsf.png";
 import toast from "react-hot-toast";
 import { db } from "../lib/firebase";
 import { collection, query, where, limit, onSnapshot } from "firebase/firestore";
 import { auth } from "../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
+import bsfLogo from "../assets/bsf-logo.svg";
 
 
 import "../App.css";
@@ -209,6 +209,8 @@ function Dashboard() {
                   ref={(el) => (inputRefs.current[i] = el)}
                   className="digit-input"
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength="1"
                   value={digit}
                   onChange={(e) => handleChange(e, "first", i)}
@@ -224,7 +226,9 @@ function Dashboard() {
                   key={`second-${i}`}
                   ref={(el) => (inputRefs.current[3 + i] = el)}
                   className="digit-input"
-                  type="text"
+                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength="1"
                   value={digit}
                   onChange={(e) => handleChange(e, "second", i)}
@@ -241,6 +245,8 @@ function Dashboard() {
                   ref={(el) => (inputRefs.current[8 + i] = el)}
                   className="digit-input"
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength="1"
                   value={digit}
                   onChange={(e) => handleChange(e, "third", i)}
@@ -276,16 +282,16 @@ function Dashboard() {
         </div>
 
         
-        <div className="glass-card instructions-card">
-          <h4>Important Instructions</h4>
-          <ul>
-            <li>Ensure cheque number matches your physical cheque.</li>
-            <li>Do not share cheque numbers publicly.</li>
-            <li>Only numeric digits allowed after “BSF”.</li>
-            <li>Verification fails for special characters or spaces.</li>
-            <li>Contact BSF support for any assistance.</li>
-          </ul>
-        </div>
+        <div className="glass-card instructions-card text-right" dir="rtl">
+  <h4 className="text-2xl font-semibold mb-3" style={{ fontFamily: "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif" }}>
+    ضروری ہدایات
+  </h4>
+  <p className="text-lg leading-relaxed" style={{ fontFamily: "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif" }}>
+    یہ رسید BSF اور موصول کنندہ کی باہمی رضامندی پر مبنی اندرونی کاروباری لین دین کا ریکارڈ ہے۔
+    یہ کسی بھی بینک یا عدالت میں “چیک” یا قابلِ نفاذ آلہ نہیں سمجھی جائے گی،
+    صرف BSF سے ہی نقد/کلیئر ہوگی۔
+  </p>
+</div>
 
        
         <div className="glass-card footer-card">
