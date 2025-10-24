@@ -283,13 +283,12 @@ function Dashboard() {
 
         
         <div className="glass-card instructions-card text-right" dir="rtl">
-  <h4 className="text-2xl font-semibold mb-3" style={{ fontFamily: "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif" }}>
-    ضروری ہدایات
+  <h4 className="text-2xl font-semibold mb-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
+Important  Instructions
   </h4>
-  <p className="text-lg leading-relaxed" style={{ fontFamily: "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif" }}>
-    یہ رسید BSF اور موصول کنندہ کی باہمی رضامندی پر مبنی اندرونی کاروباری لین دین کا ریکارڈ ہے۔
-    یہ کسی بھی بینک یا عدالت میں “چیک” یا قابلِ نفاذ آلہ نہیں سمجھی جائے گی،
-    صرف BSF سے ہی نقد/کلیئر ہوگی۔
+  <p className="text-lg leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
+    This receipt is a record of an internal business transaction entered into by mutual agreement between BSF and the recipient. 
+    It shall not be considered a 'check' or an enforceable instrument by any bank or court, and is payable/cleared only by BSF in cash
   </p>
 </div>
 
