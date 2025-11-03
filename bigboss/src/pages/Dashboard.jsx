@@ -6,11 +6,8 @@ import toast from "react-hot-toast";
 import { db } from "../lib/firebase";
 import { collection, query, where, limit, onSnapshot } from "firebase/firestore";
 import { auth } from "../lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import bsfLogo from "../assets/bsf-logo.svg";
-
-
 import "../App.css";
 
 function Dashboard() {
@@ -18,41 +15,40 @@ function Dashboard() {
   const [animationType, setAnimationType] = useState(null);
   const [shake, setShake] = useState(false);
   const inputRefs = useRef([]);
-  useEffect(() => {
-  const unsub = onAuthStateChanged(auth, (user) => {
-    if (user && user.displayName) {
-     
-      localStorage.setItem("userName", user.displayName);
-      setUserName(user.displayName);
-    } else {
-      setUserName("Guest");
-    }
-  });
 
-  return () => unsub();
-}, []);
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user && user.displayName) {
+        localStorage.setItem("userName", user.displayName);
+        setUserName(user.displayName);
+      } else {
+        setUserName("Guest");
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // ✅ Fixed field structure: 3 + 6 + 4 digits
   const [fields, setFields] = useState({
     first: ["", "", ""],
-    second: ["", "", "", "", ""],
+    second: ["", "", "", "", "", ""],
     third: ["", "", "", ""],
   });
 
-  const unsubRef = useRef(null); 
+  const unsubRef = useRef(null);
 
-  
   const handleLogout = async () => {
-  try {
-    await signOut(auth); 
-    localStorage.removeItem("userName"); 
-    toast.success("You have been logged out");
-    window.location.href = "/login"; 
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to log out. Try again.");
-  }
-};
+    try {
+      await signOut(auth);
+      localStorage.removeItem("userName");
+      toast.success("You have been logged out");
+      window.location.href = "/login";
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to log out. Try again.");
+    }
+  };
 
-  
   const handleChange = (e, section, index) => {
     const val = e.target.value.replace(/[^0-9]/g, "");
     if (!val) return;
@@ -62,7 +58,7 @@ function Dashboard() {
     setFields(updated);
 
     const flatIndex =
-      (section === "first" ? 0 : section === "second" ? 3 : 8) + index;
+      (section === "first" ? 0 : section === "second" ? 3 : 9) + index;
     const nextIndex = flatIndex + 1;
 
     if (inputRefs.current[nextIndex]) {
@@ -81,7 +77,7 @@ function Dashboard() {
       }
 
       const flatIndex =
-        (section === "first" ? 0 : section === "second" ? 3 : 8) + index;
+        (section === "first" ? 0 : section === "second" ? 3 : 9) + index;
       const prevIndex = flatIndex - 1;
 
       if (prevIndex >= 0 && inputRefs.current[prevIndex]) {
@@ -103,62 +99,59 @@ function Dashboard() {
     }
   };
 
-  
   const handleSubmit = (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Format like BSF123-45678-9012
-  const formattedChequeId = `BSF${fields.first.join("")}-${fields.second.join("")}-${fields.third.join("")}`;
-  
- 
-  if (unsubRef.current) {
-    unsubRef.current();
-    unsubRef.current = null;
-  }
+    // ✅ Updated format: BSF + 3 + "-" + 6 + "-" + 4
+    const formattedChequeId = `BSF${fields.first.join("")}-${fields.second.join("")}-${fields.third.join("")}`;
 
-  if (!/^[A-Za-z0-9-]+$/.test(formattedChequeId)) {
-    setAnimationType("fail");
-    toast.error("Invalid cheque format!");
-    setShake(true);
-    setTimeout(() => setShake(false), 600);
-    setTimeout(() => setAnimationType(null), 2000);
-    return;
-  }
+    if (unsubRef.current) {
+      unsubRef.current();
+      unsubRef.current = null;
+    }
 
-  
-  const chequeQuery = query(
-    collection(db, "cheques"),
-    where("chequeId", "==", formattedChequeId),
-    limit(1)
-  );
-
-  unsubRef.current = onSnapshot(chequeQuery, (snapshot) => {
-    if (snapshot.empty) {
+    // Validate format: must match BSF###-######-####
+    const validPattern = /^BSF\d{3}-\d{6}-\d{4}$/;
+    if (!validPattern.test(formattedChequeId)) {
       setAnimationType("fail");
-      toast.error("Cheque not found ❌");
+      toast.error("Invalid cheque format!");
       setShake(true);
       setTimeout(() => setShake(false), 600);
       setTimeout(() => setAnimationType(null), 2000);
       return;
     }
 
-    const cheque = snapshot.docs[0].data();
-    const status = String(cheque.status || "").toLowerCase();
+    const chequeQuery = query(
+      collection(db, "cheques"),
+      where("chequeId", "==", formattedChequeId),
+      limit(1)
+    );
 
-    if (status === "valid") {
-      setAnimationType("success");
-      toast.success("Cheque is VALID ✅");
-    } else {
-      setAnimationType("fail");
-      toast.error("Cheque is NOT valid because its paid❌");
-    }
+    unsubRef.current = onSnapshot(chequeQuery, (snapshot) => {
+      if (snapshot.empty) {
+        setAnimationType("fail");
+        toast.error("Cheque not found ❌");
+        setShake(true);
+        setTimeout(() => setShake(false), 600);
+        setTimeout(() => setAnimationType(null), 2000);
+        return;
+      }
 
-    setTimeout(() => setAnimationType(null), 2500);
-  });
-};
+      const cheque = snapshot.docs[0].data();
+      const status = String(cheque.status || "").toLowerCase();
 
+      if (status === "valid") {
+        setAnimationType("success");
+        toast.success("Cheque is VALID ✅");
+      } else {
+        setAnimationType("fail");
+        toast.error("Cheque is NOT valid because it's paid ❌");
+      }
 
-  
+      setTimeout(() => setAnimationType(null), 2500);
+    });
+  };
+
   useEffect(() => {
     return () => {
       if (unsubRef.current) unsubRef.current();
@@ -167,7 +160,6 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container scrollable-dashboard">
-     
       <header className="glass-header">
         <div className="header-left">
           <img src={bsfLogo} alt="BSF Logo" className="bsf-logo" />
@@ -189,20 +181,19 @@ function Dashboard() {
         </div>
       </header>
 
-      
       <main className="dashboard-main">
         <div className="glass-card verification-card">
           <h3 className="verification-heading">Cheque Verification</h3>
           <p className="verification-sub">
             Enter your cheque number below in the correct format:
           </p>
-          <p className="format-example">BSF001 - 12345 - 2025</p>
+          <p className="format-example">BSF001 - 786051 - 2025</p>
 
           <form className="cheque-form" onSubmit={handleSubmit}>
             <div className={`cheque-input-wrapper ${shake ? "shake" : ""}`}>
               <div className="prefix">BSF</div>
 
-             
+              {/* 3 digits */}
               {fields.first.map((digit, i) => (
                 <input
                   key={`first-${i}`}
@@ -220,13 +211,13 @@ function Dashboard() {
 
               <span className="hyphen">-</span>
 
-              
+              {/* 6 digits */}
               {fields.second.map((digit, i) => (
                 <input
                   key={`second-${i}`}
                   ref={(el) => (inputRefs.current[3 + i] = el)}
                   className="digit-input"
-                   type="text"
+                  type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
                   maxLength="1"
@@ -238,11 +229,11 @@ function Dashboard() {
 
               <span className="hyphen">-</span>
 
-              
+              {/* 4 digits */}
               {fields.third.map((digit, i) => (
                 <input
                   key={`third-${i}`}
-                  ref={(el) => (inputRefs.current[8 + i] = el)}
+                  ref={(el) => (inputRefs.current[9 + i] = el)}
                   className="digit-input"
                   type="text"
                   inputMode="numeric"
@@ -260,7 +251,6 @@ function Dashboard() {
             </button>
           </form>
 
-         
           <div className="animation-container">
             {animationType === "success" && (
               <Lottie
@@ -281,18 +271,24 @@ function Dashboard() {
           </div>
         </div>
 
-        
         <div className="glass-card instructions-card text-right" dir="rtl">
-  <h4 className="text-2xl font-semibold mb-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
-Important  Instructions
-  </h4>
-  <p className="text-lg leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
-    This receipt is a record of an internal business transaction entered into by mutual agreement between BSF and the recipient. 
-    It shall not be considered a 'check' or an enforceable instrument by any bank or court, and is payable/cleared only by BSF in cash
-  </p>  
-</div>
+          <h4
+            className="text-2xl font-semibold mb-3"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            Important Instructions
+          </h4>
+          <p
+            className="text-lg leading-relaxed"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            This receipt is a record of an internal business transaction entered
+            into by mutual agreement between BSF and the recipient. It shall not
+            be considered a 'check' or an enforceable instrument by any bank or
+            court, and is payable/cleared only by BSF in cash
+          </p>
+        </div>
 
-       
         <div className="glass-card footer-card">
           <p>
             For support: <b>0307-3377866</b> | Email:{" "}
