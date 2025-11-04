@@ -4,7 +4,16 @@ import verifySuccess from "../assets/verify-success.json";
 import verifyFail from "../assets/verify-fail.json";
 import toast from "react-hot-toast";
 import { db } from "../lib/firebase";
-import { collection, query, where, limit, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  limit,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+} from "firebase/firestore";
 import { auth } from "../lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import bsfLogo from "../assets/bsf-logo.svg";
@@ -28,7 +37,6 @@ function Dashboard() {
     return () => unsub();
   }, []);
 
-  // ✅ Fixed field structure: 3 + 6 + 4 digits
   const [fields, setFields] = useState({
     first: ["", "", ""],
     second: ["", "", "", "", "", ""],
@@ -99,10 +107,9 @@ function Dashboard() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Updated format: BSF + 3 + "-" + 6 + "-" + 4
     const formattedChequeId = `BSF${fields.first.join("")}-${fields.second.join("")}-${fields.third.join("")}`;
 
     if (unsubRef.current) {
@@ -110,7 +117,6 @@ function Dashboard() {
       unsubRef.current = null;
     }
 
-    // Validate format: must match BSF###-######-####
     const validPattern = /^BSF\d{3}-\d{6}-\d{4}$/;
     if (!validPattern.test(formattedChequeId)) {
       setAnimationType("fail");
@@ -121,35 +127,63 @@ function Dashboard() {
       return;
     }
 
-    const chequeQuery = query(
-      collection(db, "cheques"),
-      where("chequeId", "==", formattedChequeId),
-      limit(1)
-    );
+    try {
+      const chequeQuery = query(
+        collection(db, "cheques"),
+        where("chequeId", "==", formattedChequeId),
+        limit(1)
+      );
 
-    unsubRef.current = onSnapshot(chequeQuery, (snapshot) => {
-      if (snapshot.empty) {
+      const snap = await getDocs(chequeQuery);
+
+      // ✅ If cheque not found
+      if (snap.empty) {
         setAnimationType("fail");
         toast.error("Cheque not found ❌");
         setShake(true);
         setTimeout(() => setShake(false), 600);
         setTimeout(() => setAnimationType(null), 2000);
+
+        // Log "not found" verification
+        await addDoc(collection(db, "verifications"), {
+          chequeId: formattedChequeId,
+          name: "—",
+          verifiedBy: userName || "Guest",
+          verifiedAt: serverTimestamp(),
+          status: "not_found",
+        });
         return;
       }
 
-      const cheque = snapshot.docs[0].data();
+      const cheque = snap.docs[0].data();
       const status = String(cheque.status || "").toLowerCase();
 
+      // ✅ Log verification attempt
+      await addDoc(collection(db, "verifications"), {
+        chequeId: cheque.chequeId || formattedChequeId,
+        name: cheque.name || "—",
+        verifiedBy: userName || "Guest",
+        verifiedAt: serverTimestamp(),
+        status: status,
+      });
+
+      // ✅ Display correct animation
       if (status === "valid") {
         setAnimationType("success");
         toast.success("Cheque is VALID ✅");
+      } else if (status === "paid") {
+        setAnimationType("fail");
+        toast.error("Cheque is already PAID ❌");
       } else {
         setAnimationType("fail");
-        toast.error("Cheque is NOT valid because it's paid ❌");
+        toast.error("Cheque is NOT VALID ❌");
       }
 
       setTimeout(() => setAnimationType(null), 2500);
-    });
+    } catch (error) {
+      console.error("Verification failed:", error);
+      toast.error("Error verifying cheque. Try again.");
+    }
   };
 
   useEffect(() => {
@@ -193,7 +227,6 @@ function Dashboard() {
             <div className={`cheque-input-wrapper ${shake ? "shake" : ""}`}>
               <div className="prefix">BSF</div>
 
-              {/* 3 digits */}
               {fields.first.map((digit, i) => (
                 <input
                   key={`first-${i}`}
@@ -211,7 +244,6 @@ function Dashboard() {
 
               <span className="hyphen">-</span>
 
-              {/* 6 digits */}
               {fields.second.map((digit, i) => (
                 <input
                   key={`second-${i}`}
@@ -229,7 +261,6 @@ function Dashboard() {
 
               <span className="hyphen">-</span>
 
-              {/* 4 digits */}
               {fields.third.map((digit, i) => (
                 <input
                   key={`third-${i}`}
